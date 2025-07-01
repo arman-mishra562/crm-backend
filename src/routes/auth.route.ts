@@ -12,7 +12,7 @@ import {
 import validateRequest from '../middlewares/validateRequest';
 import { isAuthenticated } from "../middlewares/auth.middleware";
 import { forgotPasswordSchema, resetPasswordSchema } from '../schemas/password.schema';
-import { linkProfilePicSchema, deleteAccountSchema } from "../schemas/auth.schema";
+import { deleteAccountSchema } from "../schemas/auth.schema";
 
 const router = Router();
 
