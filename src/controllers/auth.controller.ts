@@ -57,7 +57,7 @@ export const register: RequestHandler = async (
 
     const link = `${process.env.FRONTEND_URL}/auth/verify?token=${token}`;
     await verify_transporter.sendMail({
-      from: `"InternVault" <${process.env.SMTP_VERIFY_USER}>`,
+      from: `"Zylentrix CRM" <${process.env.SMTP_VERIFY_USER}>`,
       to: email,
       subject: 'Verify Your Email',
       html: generateVerificationEmail(link),
@@ -135,7 +135,7 @@ export const resendVerification: RequestHandler = async (
 
     const link = `${process.env.FRONTEND_URL}/auth/verify?token=${token}`;
     await verify_transporter.sendMail({
-      from: `"InternVault" <${process.env.SMTP_VERIFY_USER}>`,
+      from: `"Zylentrix CRM" <${process.env.SMTP_VERIFY_USER}>`,
       to: email,
       subject: 'Resend: Verify Your Email',
       html: generateVerificationEmail(link),
@@ -219,7 +219,7 @@ export const forgotPassword: RequestHandler = async (
     });
     const link = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
     await verify_transporter.sendMail({
-      from: `"InternVault" <${process.env.SMTP_VERIFY_USER}>`,
+      from: `"Zylentrix CRM" <${process.env.SMTP_VERIFY_USER}>`,
       to: email,
       subject: 'Reset Your Password',
       html: generateResetEmail(link),
