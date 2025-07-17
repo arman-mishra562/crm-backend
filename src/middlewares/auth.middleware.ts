@@ -1,21 +1,29 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-import { verifyAuthToken } from '../utils/token';
+import jwt from 'jsonwebtoken';
 import prisma from '../config/prisma';
 
-// 1) Globally augment Express.Request so TS knows about `req.user`
+// Augment Express Request with `user`
 declare global {
   namespace Express {
     interface Request {
-      user?: { id: string };
+      user?: {
+        id: string;
+        sector: string | null;
+      };
     }
   }
 }
 
-// 2) Protect routes & populate req.user
+interface TokenPayload {
+  sub: string;  // subject: typically the userId
+  iat: number;
+  exp: number;
+}
+
 export const isAuthenticated: RequestHandler = async (
-  req,
-  res,
-  next
+  req: Request,
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
@@ -24,27 +32,35 @@ export const isAuthenticated: RequestHandler = async (
       return;
     }
 
-    const token = authHeader.slice(7).trim(); // remove "Bearer "
-    let payload;
+    const token = authHeader.split(' ')[1];
+    let payload: TokenPayload;
+
     try {
-      payload = verifyAuthToken(token);
-    } catch (_err) {
+      payload = jwt.verify(token, process.env.JWT_SECRET!) as TokenPayload;
+    } catch (err) {
       res.status(401).json({ error: 'Unauthorized: Invalid or expired token' });
       return;
     }
 
-    // 3) Confirm user still exists
-    const user = await prisma.user.findUnique({ where: { id: payload.sub } });
+    // Fetch user with sector info
+    const user = await prisma.user.findUnique({
+      where: { id: payload.sub },
+      select: { id: true, sector: true },
+    });
+
     if (!user) {
-      res.status(401).json({ error: 'Unauthorized: User no longer exists' });
+      res.status(401).json({ error: 'Unauthorized: User not found' });
       return;
     }
 
-    // 4) Attach to request
-    req.user = { id: payload.sub };
+    req.user = {
+      id: user.id,
+      sector: user.sector,
+    };
+
     next();
   } catch (err) {
-    console.error('Error in isAuthenticated middleware:', err);
-    next(err);
+    console.error('Authentication Middleware Error:', err);
+    res.status(500).json({ error: 'Internal server error in authentication' });
   }
 };

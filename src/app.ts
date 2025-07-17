@@ -4,6 +4,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth.route';
+import dashboardRoutes from './routes/dashboard.routes';
+
 
 dotenv.config();
 const app = express();
@@ -17,7 +19,12 @@ app.get('/health', (req, res) => {
     res.json({ status: 'OK' });
 });
 
-app.use('/api/auth', authRoutes);
+
+
+
+// ✅ Attach routes
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/auth/api', authRoutes);
 
 // ——— 404 Handler ———
 app.use((req, res) => {
@@ -31,7 +38,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT =  process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

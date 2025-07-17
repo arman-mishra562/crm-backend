@@ -30,15 +30,17 @@ export const register: RequestHandler = async (
       return;
     }
 
-    const { name, email, password } = parse.data;
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
+    const { name, email, password,sector} = parse.data;
+  const existing = await prisma.user.findUnique({
+  where: { email },
+});
+if (existing){
       res
         .status(409)
         .json({ error: 'Email already in use (Login or Resend Verification)' });
       return;
     }
-
+ 
     const hashed = await bcrypt.hash(password, 10);
     const token = generateVerificationToken(email);
     const expiry = new Date(Date.now() + 24 * 3600 * 1000);
@@ -50,12 +52,15 @@ export const register: RequestHandler = async (
         name,
         email,
         password: hashed,
+        sector,
         emailToken: token,
         emailTokenExpiry: expiry,
       },
     });
+   
+  
 
-    const link = `${process.env.BACKEND_URL}/auth/verify?token=${token}`;
+const link = `${process.env.FRONTEND_URL}/auth/verify?token=${token}`;
     await verify_transporter.sendMail({
       from: `"Zylentrix CRM" <${process.env.SMTP_VERIFY_USER}>`,
       to: email,
@@ -63,8 +68,9 @@ export const register: RequestHandler = async (
       html: generateVerificationEmail(link),
     });
 
-    res.status(201).json({ message: 'Registered! Please check your email.' });
-  } catch (err) {
+     res.status(201).json({ message: 'Registered! Please check your email.' });
+  }
+  catch (err) {
     next(err);
   }
 };
@@ -133,7 +139,7 @@ export const resendVerification: RequestHandler = async (
       data: { emailToken: token, emailTokenExpiry: expiry },
     });
 
-    const link = `${process.env.BACKEND_URL}/auth/verify?token=${token}`;
+    const link = `${process.env.FRONTEND_URL}/auth/verify?token=${token}`;
     await verify_transporter.sendMail({
       from: `"Zylentrix CRM" <${process.env.SMTP_VERIFY_USER}>`,
       to: email,
@@ -189,6 +195,7 @@ export const login: RequestHandler = async (
         id: user.id,
         name: user.name,
         email: user.email,
+        sector: user.sector,
       },
     });
   } catch (err) {
