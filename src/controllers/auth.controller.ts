@@ -30,17 +30,17 @@ export const register: RequestHandler = async (
       return;
     }
 
-    const { name, email, password,sector} = parse.data;
-  const existing = await prisma.user.findUnique({
-  where: { email },
-});
-if (existing){
+    const { name, email, password, sector } = parse.data;
+    const existing = await prisma.user.findUnique({
+      where: { email },
+    });
+    if (existing) {
       res
         .status(409)
         .json({ error: 'Email already in use (Login or Resend Verification)' });
       return;
     }
- 
+
     const hashed = await bcrypt.hash(password, 10);
     const token = generateVerificationToken(email);
     const expiry = new Date(Date.now() + 24 * 3600 * 1000);
@@ -57,10 +57,10 @@ if (existing){
         emailTokenExpiry: expiry,
       },
     });
-   
-  
 
-const link = `${process.env.FRONTEND_URL}/auth/verify?token=${token}`;
+
+
+    const link = `${process.env.BACKEND_URL}/auth/verify?token=${token}`;
     await verify_transporter.sendMail({
       from: `"Zylentrix CRM" <${process.env.SMTP_VERIFY_USER}>`,
       to: email,
@@ -68,7 +68,7 @@ const link = `${process.env.FRONTEND_URL}/auth/verify?token=${token}`;
       html: generateVerificationEmail(link),
     });
 
-     res.status(201).json({ message: 'Registered! Please check your email.' });
+    res.status(201).json({ message: 'Registered! Please check your email.' });
   }
   catch (err) {
     next(err);
@@ -139,7 +139,7 @@ export const resendVerification: RequestHandler = async (
       data: { emailToken: token, emailTokenExpiry: expiry },
     });
 
-    const link = `${process.env.FRONTEND_URL}/auth/verify?token=${token}`;
+    const link = `${process.env.BACKEND_URL}/auth/verify?token=${token}`;
     await verify_transporter.sendMail({
       from: `"Zylentrix CRM" <${process.env.SMTP_VERIFY_USER}>`,
       to: email,

@@ -12,6 +12,7 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 enum SectorType {
   DIGIZIGN
   ZURELABS
@@ -19,20 +20,56 @@ enum SectorType {
   UNIZEEK
 }
 
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
+}
 
 model User {
   id                String   @id
   name              String
   email             String   @unique
   password          String
-  sector                  SectorType
+  sector            SectorType
   isEmailVerified   Boolean  @default(false)
   emailToken        String?  // for email verification
   emailTokenExpiry  DateTime?
   resetToken        String?   // for password resets
   resetTokenExpiry  DateTime?
-  isAdmin           Boolean       @default(false)
+  isAdmin           Boolean  @default(false)
 
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  tasks             Task[]
+}
+
+model Lead {
+  id                String   @id
+  name              String
+  email             String   @unique
+  phone             String
+  sector            SectorType
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  tasks             Task[]
+}
+
+model Task {
+  id                String   @id
+  title             String
+  description       String
+  priority          Priority
+  dueDate           DateTime?
+  
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  lead              Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  leadId            String
+  
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
