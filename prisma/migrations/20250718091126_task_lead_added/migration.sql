@@ -41,6 +41,11 @@ CREATE TABLE "Task" (
     CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
 );
 
+
+-- Step 2: Add status column to the Task table
+ALTER TABLE "Task"
+ADD COLUMN "status" "Status" NOT NULL DEFAULT 'PENDING';
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Lead_email_key" ON "Lead"("email");
 

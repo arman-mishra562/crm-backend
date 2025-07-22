@@ -5,6 +5,11 @@ import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth.route';
 import dashboardRoutes from './routes/dashboard.routes';
+import taskRoutes from './routes/task.route';
+import leadRoutes from './routes/lead.route';
+
+
+
 
 
 dotenv.config();
@@ -22,6 +27,9 @@ app.get('/health', (req, res) => {
 // ✅ Attach routes
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/leads', leadRoutes);
+
 
 // ——— 404 Handler ———
 app.use((req, res) => {
