@@ -52,7 +52,6 @@ model Lead {
   email             String   @unique
   phone             String
   sector            SectorType
-  
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

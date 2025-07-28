@@ -12,6 +12,9 @@ import leadRoutes from './routes/lead.route';
 
 
 
+
+
+
 dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
@@ -29,6 +32,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/leads', leadRoutes);
+
 
 
 // ——— 404 Handler ———
