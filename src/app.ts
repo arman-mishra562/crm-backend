@@ -14,7 +14,15 @@ dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
 
-app.use(cors());
+
+
+app.use(cors({
+	origin: '*',
+	credentials: true,
+	methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+	allowedHeaders: ['Content-Type', 'Authorization'],
+	optionsSuccessStatus: 200,
+}));
 app.use(express.json());
 
 // Health check route
