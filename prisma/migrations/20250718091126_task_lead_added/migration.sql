@@ -10,6 +10,9 @@ CREATE TYPE "SectorType" AS ENUM ('DIGIZIGN', 'ZURELABS', 'INTERNZITY', 'UNIZEEK
 -- CreateEnum
 CREATE TYPE "Priority" AS ENUM ('HIGH', 'MEDIUM', 'LOW');
 
+-- CreateEnum
+CREATE TYPE "Status" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED');
+
 -- AlterTable
 ALTER TABLE "User" ADD COLUMN     "sector" "SectorType" NOT NULL;
 

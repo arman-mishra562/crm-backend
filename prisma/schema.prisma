@@ -26,6 +26,13 @@ enum Priority {
   LOW
 }
 
+enum Status {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
 model User {
   id                String   @id
   name              String
@@ -48,7 +55,7 @@ model User {
 model Lead {
 
   id       String   @id 
- name              String
+  name              String
   email             String   @unique
   phone             String
   sector            SectorType
@@ -63,6 +70,7 @@ model Task {
   title             String
   description       String
   priority          Priority
+  status            Status   @default(PENDING)
   dueDate           DateTime?
   
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -74,4 +82,45 @@ model Task {
   updatedAt         DateTime @updatedAt
 }
 
+model ZureClient {
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  phone       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
+  projects    ZureProject[]
+  proposals   ZureProposal[]
+}
+
+model ZureProject {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  client      ZureClient @relation(fields: [clientId], references: [id])
+  clientId    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum ProposalStatus {
+  SENT
+  PENDING
+  ACCEPTED
+  PAID
+  REJECTED
+}
+
+model ZureProposal {
+  id          String         @id @default(uuid())
+  title       String
+  description String?
+  amount      Float
+  proposalstatus      ProposalStatus
+  client      ZureClient     @relation(fields: [clientId], references: [id])
+  clientId    String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
