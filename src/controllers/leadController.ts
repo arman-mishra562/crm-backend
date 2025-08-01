@@ -3,32 +3,43 @@ import prisma from '../config/prisma';
 import { v4 as uuidv4 } from 'uuid';
 
 // Create Lead
-
-export const createLead = async (req: Request, res: Response) : Promise<void> => {
+export const createLead = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, phone, sector } = req.body;
 
     if (!name || !email || !phone || !sector) {
-       res.status(400).json({ error: 'Name, email, phone, and sector are required' });
-       return
+      res.status(400).json({ error: 'Name, email, phone, and sector are required' });
+      return;
     }
 
-    const lead = await prisma.lead.create({
-      data: {
+    const lead = await prisma.lead.upsert({
+      where: { email },
+      update: {
+        name,
+        phone,
+        sector,
+        updatedAt: new Date(),
+      },
+      create: {
         id: uuidv4(),
         name,
         email,
         phone,
-        sector
-      }
+        sector,
+      },
     });
 
-    res.status(201).json(lead);
+    res.status(200).json({
+      message: 'Lead upserted successfully',
+      lead,
+    });
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({
+      error: 'Failed to upsert lead',
+      detail: error.message,
+    });
   }
 };
-
 
 // Get All Leads
 export const getAllLeads = async (_req: Request, res: Response) => {

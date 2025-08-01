@@ -3,15 +3,20 @@ import { v4 as uuidv4 } from 'uuid';
 import prisma from '../config/prisma';
 import { Status } from '@prisma/client';
 
-// Define valid statuses
-const VALID_STATUSES: Status[] = ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
+const VALID_STATUSES: string[] = Object.values(Status);
 
 /**
  * Create Task
  */
 export const createTask = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { title, description, priority, dueDate, userId, leadId } = req.body;
+    const { title, description, priority, dueDate, leadId } = req.body;
+    const userId = req.user?.id;
+
+    if (!userId || !title || !priority || !leadId) {
+      res.status(400).json({ error: 'Missing required fields' });
+      return;
+    }
 
     const task = await prisma.task.create({
       data: {
@@ -20,12 +25,8 @@ export const createTask = async (req: Request, res: Response): Promise<void> => 
         description,
         priority,
         dueDate: dueDate ? new Date(dueDate) : undefined,
-        user: {
-          connect: { id: userId },
-        },
-        lead: {
-          connect: { id: leadId },
-        },
+        user: { connect: { id: userId } },
+        lead: { connect: { id: leadId } },
       },
     });
 
@@ -39,40 +40,36 @@ export const createTask = async (req: Request, res: Response): Promise<void> => 
 };
 
 /**
- * Get Tasks (Filter by userId, status, sort by dueDate)
+ * Get Tasks with optional filters
  */
 export const getTasks = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { userId, status, sort } = req.query;
+    const userId = req.user?.id;
+    const { status, sort } = req.query;
 
-    if (!userId || typeof userId !== 'string') {
-      res.status(400).json({ error: 'userId is required and must be a string' });
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
-    if (status && !VALID_STATUSES.includes(status as Status)) {
+    if (status && !VALID_STATUSES.includes(status as string)) {
       res.status(400).json({ error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` });
       return;
     }
-
-    const orderBy =
-      sort === 'dueDateDesc' ? { dueDate: 'desc' }
-      : sort === 'dueDateAsc' ? { dueDate: 'asc' }
-      : undefined;
 
     const tasks = await prisma.task.findMany({
       where: {
         userId,
         ...(status ? { status: status as Status } : {}),
       },
-          orderBy: sort === 'dueDateDesc'
-        ? { dueDate: 'desc' }
-        : sort === 'dueDateAsc'
-        ? { dueDate: 'asc' }
-        : undefined,
+      orderBy:
+        sort === 'dueDateDesc'
+          ? { dueDate: 'desc' }
+          : sort === 'dueDateAsc'
+          ? { dueDate: 'asc' }
+          : undefined,
       include: { lead: true },
     });
-    
 
     res.json({
       message: 'Tasks fetched successfully',

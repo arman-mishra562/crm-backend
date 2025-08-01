@@ -37,6 +37,27 @@ export const addZureProject = async (req: Request, res: Response): Promise<void>
     res.status(500).json({ error: 'Failed to add project', detail: err });
   }
 };
+// ✅ Get all Zure Projects
+export const getAllZureProjects = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const projects = await prisma.zureProject.findMany({
+      include: { client: true }, // Include associated client data
+      orderBy: { createdAt: 'desc' }, // Optional: latest first
+    });
+
+    res.status(200).json({
+      message: 'Projects fetched successfully',
+      count: projects.length,
+      projects,
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: 'Failed to fetch projects',
+      detail: err,
+    });
+  }
+};
+
 
 // ✅ Add proposal
 export const addZureProposal = async (req: Request, res: Response): Promise<void> => {

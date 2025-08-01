@@ -4,6 +4,7 @@ import {
   getActiveZureClients,
   addZureProject,
   addZureProposal,
+  getAllZureProjects,
   getZureProposalsByStatus,
   getTotalZureRevenue
 } from '../controllers/zurelabsController';
@@ -14,6 +15,7 @@ router.post('/client', addZureClient);
 router.get('/clients/active', getActiveZureClients);
 
 router.post('/project', addZureProject);
+router.get('/projects', getAllZureProjects);
 
 router.post('/proposal', addZureProposal);
 router.get('/proposal/:status', getZureProposalsByStatus);
