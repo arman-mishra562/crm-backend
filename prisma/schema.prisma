@@ -53,34 +53,40 @@ model User {
 }
 
 model Lead {
+  id        String      @id @default(uuid())   // Auto-generate UUID for each lead
+  name      String
+  email     String?     @unique
+  phone     String?
+  sector    SectorType
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 
-  id       String   @id 
-  name              String
-  email             String   @unique
-  phone             String
-  sector            SectorType
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  tasks             Task[]
+  tasks     Task[]      // A lead can have multiple tasks
 }
 
 model Task {
-  id                String   @id
-  title             String
-  description       String
-  priority          Priority
-  status            Status   @default(PENDING)
-  dueDate           DateTime?
-  
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId            String
-  lead              Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  leadId            String
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id          String     @id @default(uuid())  // Auto-generate UUID for each task
+  title       String
+  description String?
+  priority    Priority
+  dueDate     DateTime?
+  status      Status     @default(PENDING)     // Using your existing Status enum
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+
+  leadId      String
+  lead        Lead       @relation(fields: [leadId], references: [id])
+
+  // Admin feedback
+  feedback    String?
 }
+
+
+
 
 model ZureClient {
   id          String   @id @default(uuid())

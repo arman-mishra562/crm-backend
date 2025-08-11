@@ -126,3 +126,49 @@ export const deleteTask = async (req: Request, res: Response): Promise<void> => 
     res.status(500).json({ error: 'Failed to delete task', detail: error.message });
   }
 };
+export const giveTaskFeedback = async (req: Request, res: Response) => {
+  try {
+    const { taskId } = req.params;
+    const { feedback } = req.body;
+
+    // Must be logged in
+    if (!req.user?.id) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    // Find the task with lead info
+    const task = await prisma.task.findUnique({
+      where: { id: taskId },
+      include: { lead: true },
+    });
+
+    if (!task) {
+      res.status(404).json({ error: 'Task not found' });
+      return;
+    }
+
+    // Check if logged-in user is the one who assigned the task(assignee)
+    if (task.userId !== req.user.id) {
+      res.status(403).json({ error: 'Forbidden: Only the assigned user can give feedback' });
+      return;
+    }
+
+  
+     // Update feedback
+    const updatedTask = await prisma.task.update({
+      where: { id: taskId },
+      data: { feedback },
+    });
+
+    res.status(200).json({
+      message: 'Feedback added successfully',
+      task: updatedTask,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      error: 'Failed to give feedback',
+      detail: error.message,
+    });
+  }
+};

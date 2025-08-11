@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createTask, getTasks, updateTask, deleteTask } from '../controllers/taskController';
+import { createTask, getTasks, updateTask, deleteTask, giveTaskFeedback} from '../controllers/taskController';
 import { isAuthenticated } from '../middlewares/auth.middleware';
 
 const router = Router();
@@ -15,5 +15,8 @@ router.put('/:taskId', updateTask);
 
 // Delete a Task
 router.delete('/:taskId', deleteTask);
+
+// Admin feedback route
+router.post('/:taskId/feedback', isAuthenticated, giveTaskFeedback);
 
 export default router;

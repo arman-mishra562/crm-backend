@@ -8,6 +8,7 @@ import dashboardRoutes from './routes/dashboard.routes';
 import taskRoutes from './routes/task.route';
 import leadRoutes from './routes/lead.route';
 import zureLabsRoutes from './routes/zurelabs.route';
+import taskAssignmentRoutes from './routes/taskAssignment.route';
 
 
 dotenv.config();
@@ -36,6 +37,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/zurelabs', zureLabsRoutes);
+app.use('/api/task-assignment', taskAssignmentRoutes);
 
 
 
