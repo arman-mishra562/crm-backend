@@ -130,3 +130,81 @@ model ZureProposal {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 }
+// enums
+enum ClientStatus {
+  NEW_LEAD
+  PROPOSAL_SENT
+  CONTRACT_SIGNED
+}
+
+enum CampaignStatus {
+  PLANNED
+  CREATIVE_APPROVAL
+  LIVE_CAMPAIGN
+  COMPLETED
+  PAUSED
+}
+
+enum CampaignType {
+  SEO
+  PPC
+  SOCIAL_MEDIA
+}
+
+
+
+model DigiZignClient {
+  id          String             @id @default(uuid())
+  name        String
+  email       String?
+  phone       String?
+  company     String?
+  leadSource  String?
+  assignedBDE String?
+  status      ClientStatus?
+  campaigns   Campaign[]
+  activities  DigiZignActivity[] @relation("ClientActivities")
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model ClientFeedback {
+  id         String     @id @default(uuid())
+  campaignId String
+  campaign   Campaign   @relation(fields: [campaignId], references: [id])
+  rating     Int
+  comments   String?
+  createdAt  DateTime   @default(now())
+}
+
+model Campaign {
+  id          String             @id @default(uuid())
+  name        String
+  type        CampaignType
+  budget      Float?
+  spend       Float?             @default(0)
+  roi         Float?
+  engagement  Float?             // clicks/impressions/conversions %
+  scope       String?
+  startDate   DateTime?
+  endDate     DateTime?
+  status      CampaignStatus
+  deadlines   Json?              // custom deadlines
+  clientId    String
+  client      DigiZignClient     @relation(fields: [clientId], references: [id])
+  feedbacks   ClientFeedback[]
+  activities  DigiZignActivity[] @relation("CampaignActivities")
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model DigiZignActivity {
+  id          String    @id @default(uuid())
+  type        String   // "CAMPAIGN_PROGRESS", "CLIENT_UPDATE", "TASK_ASSIGNMENT"
+  message     String?
+  clientId    String?
+  client      DigiZignClient? @relation("ClientActivities", fields: [clientId], references: [id])
+  campaignId  String?
+  campaign    Campaign?       @relation("CampaignActivities", fields: [campaignId], references: [id])
+  createdAt   DateTime  @default(now())
+}
