@@ -48,6 +48,18 @@ export const getClients = async (req: Request, res: Response): Promise<void> => 
     res.status(500).json({ error: "Failed to fetch clients", detail: error.message });
   }
 };
+// Get clients minimal (id + name only)
+export const getClientsMinimal = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const clients = await prisma.digiZignClient.findMany({
+      select: { id: true, name: true }
+    });
+    res.json(clients);
+  } catch (error: any) {
+    res.status(500).json({ error: "Failed to fetch clients", detail: error.message });
+  }
+};
+
 
 /*
  Campaigns

@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createClient,
   getClients,
+  getClientsMinimal,
   createCampaign,
   getCampaigns,
   getActiveAndCompletedCampaigns,
@@ -19,6 +20,7 @@ router.use(isAuthenticated)
 // Clients
 router.post("/clients", createClient);
 router.get("/clients", getClients);
+router.get("/clients/minimal",getClientsMinimal)
 
 // Campaigns
 router.post("/campaigns", createCampaign);
