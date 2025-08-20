@@ -24,3 +24,7 @@ export const resendSchema = z.object({
 export const deleteAccountSchema = z.object({
   password: z.string().min(1, 'Password confirmation is required'),
 });
+
+export const updateEmailSchema = z.object({
+  newEmail: z.string().email('Invalid email'),
+});

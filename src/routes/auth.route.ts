@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   register,
+  updateEmail,
   verifyEmail,
   resendVerification,
   login,
@@ -13,10 +14,19 @@ import validateRequest from '../middlewares/validateRequest';
 import { isAuthenticated } from "../middlewares/auth.middleware";
 import { forgotPasswordSchema, resetPasswordSchema } from '../schemas/password.schema';
 import { deleteAccountSchema } from "../schemas/auth.schema";
+import { updateEmailSchema } from "../schemas/auth.schema";
+
+
+
 
 const router = Router();
 
 router.post('/register', register);
+router.put("/update-email",
+  isAuthenticated,
+  validateRequest({ body: updateEmailSchema }),
+  updateEmail
+);
 router.get('/verify', verifyEmail);
 router.post('/resend-verification', resendVerification);
 router.post('/login', login);

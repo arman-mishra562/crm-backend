@@ -74,6 +74,52 @@ export const register: RequestHandler = async (
     next(err);
   }
 };
+// ✅ Update Email (requires authentication)
+export const updateEmail: RequestHandler = async (req, res, next) => {
+  try {
+    const userId = (req as any).user.id;
+    const { newEmail } = req.body;
+
+    if (!newEmail) {
+      res.status(400).json({ error: 'New email is required' });
+      return;
+    }
+
+    // Check if email is already taken
+    const existing = await prisma.user.findUnique({ where: { email: newEmail } });
+    if (existing) {
+      res.status(409).json({ error: 'Email already in use' });
+      return;
+    }
+
+    const token = generateVerificationToken(newEmail);
+    const expiry = new Date(Date.now() + 24 * 3600 * 1000);
+
+    // Update user with new email + reset verification
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        email: newEmail,
+        isEmailVerified: false,
+        emailToken: token,
+        emailTokenExpiry: expiry,
+      },
+    });
+
+    const link = `${process.env.BACKEND_URL}/auth/verify?token=${token}`;
+    await verify_transporter.sendMail({
+      from: `"Zylentrix CRM" <${process.env.SMTP_VERIFY_USER}>`,
+      to: newEmail,
+      subject: 'Verify Your New Email',
+      html: generateVerificationEmail(link),
+    });
+
+    res.json({ message: 'Email updated! Please verify your new email.' });
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 // Controller for email verification
 export const verifyEmail: RequestHandler = async (
