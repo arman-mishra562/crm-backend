@@ -60,7 +60,7 @@ export const register: RequestHandler = async (
 
 
 
-    const link = `${process.env.BACKEND_URL}/auth/verify?token=${token}`;
+    const link = `${process.env.FRONTEND_URL}/crm/verify?token=${token}`;
     await verify_transporter.sendMail({
       from: `"Zylentrix CRM" <${process.env.SMTP_VERIFY_USER}>`,
       to: email,
@@ -106,7 +106,7 @@ export const updateEmail: RequestHandler = async (req, res, next) => {
       },
     });
 
-    const link = `${process.env.BACKEND_URL}/auth/verify?token=${token}`;
+    const link = `${process.env.FRONTEND_URL}/crm/verify?token=${token}`;
     await verify_transporter.sendMail({
       from: `"Zylentrix CRM" <${process.env.SMTP_VERIFY_USER}>`,
       to: newEmail,
@@ -185,7 +185,7 @@ export const resendVerification: RequestHandler = async (
       data: { emailToken: token, emailTokenExpiry: expiry },
     });
 
-    const link = `${process.env.BACKEND_URL}/auth/verify?token=${token}`;
+    const link = `${process.env.FRONTEND_URL}/crm/verify?token=${token}`;
     await verify_transporter.sendMail({
       from: `"Zylentrix CRM" <${process.env.SMTP_VERIFY_USER}>`,
       to: email,
@@ -270,7 +270,7 @@ export const forgotPassword: RequestHandler = async (
       where: { id: user!.id },
       data: { resetToken: token, resetTokenExpiry: expiry },
     });
-    const link = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    const link = `${process.env.FRONTEND_URL}/crm/reset-password?token=${token}`;
     await verify_transporter.sendMail({
       from: `"Zylentrix CRM" <${process.env.SMTP_VERIFY_USER}>`,
       to: email,
